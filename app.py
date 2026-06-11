@@ -8,58 +8,80 @@ st.set_page_config(
     layout="wide"
 )
 
-# ================== CLEAN PROFESSIONAL UI ==================
+# ================== UI THEME (FIXED VISIBILITY) ==================
 st.markdown("""
 <style>
+
+/* Background */
 .stApp {
     background-color: #0B1220;
-    color: #E5E7EB;
+    color: #F9FAFB;
 }
 
 /* Sidebar */
 section[data-testid="stSidebar"] {
-    background-color: #111827;
+    background-color: #0F172A;
 }
 
 /* Headings */
-h1, h2, h3 {
-    color: #60A5FA !important;
+h1, h2, h3, h4 {
+    color: #38BDF8 !important;
+    font-weight: 700;
 }
 
-/* Text visibility FIX */
+/* Global text visibility FIX */
 p, span, label, div {
-    color: #E5E7EB !important;
+    color: #F1F5F9 !important;
+    font-size: 16px;
 }
 
-/* Inputs */
+/* Input fields */
 input, textarea {
-    background-color: #1F2937 !important;
-    color: white !important;
-    border-radius: 8px !important;
-    border: 1px solid #374151 !important;
+    background-color: #1E293B !important;
+    color: #FFFFFF !important;
+    border: 1px solid #334155 !important;
+    border-radius: 10px !important;
+}
+
+/* Placeholder text */
+input::placeholder, textarea::placeholder {
+    color: #94A3B8 !important;
 }
 
 /* Buttons */
 .stButton button {
-    background-color: #3B82F6;
+    background-color: #2563EB;
     color: white;
-    font-weight: bold;
+    font-weight: 600;
     border-radius: 8px;
 }
 
-/* Chat */
+/* Chat messages */
 [data-testid="stChatMessage"] {
-    background-color: #111827;
-    border-radius: 10px;
+    background-color: #111C2E;
+    color: #F8FAFC !important;
+    border-radius: 12px;
     padding: 12px;
+    border: 1px solid #1F2A44;
+}
+
+/* Chat input */
+.stChatInputContainer {
+    background-color: #0F172A;
 }
 
 /* Alerts */
 .stAlert {
-    background-color: #1F2937 !important;
-    color: #FFFFFF !important;
-    border-left: 5px solid #3B82F6;
+    background-color: #111827 !important;
+    color: #F8FAFC !important;
+    border-left: 5px solid #38BDF8;
 }
+
+/* Multiselect fix */
+.stMultiSelect div {
+    color: #0F172A !important;
+}
+
 </style>
 """, unsafe_allow_html=True)
 
@@ -77,7 +99,7 @@ page = st.sidebar.radio("Navigate", [
 # ================== HOME ==================
 if page == "Home":
     st.title("MediBot AI 🩺")
-    st.write("AI-powered medical triage assistant (Educational Purpose Only)")
+    st.write("AI-powered medical triage assistant (Educational Use Only)")
     st.image("https://source.unsplash.com/1200x400/?hospital,technology")
 
 # ================== SYMPTOM CHECKER ==================
@@ -85,7 +107,7 @@ elif page == "Symptom Checker":
     st.title("Symptom Checker 🔍")
 
     symptoms = st.multiselect(
-        "Select symptoms",
+        "Select your symptoms",
         ["Fever", "Cough", "Headache", "Fatigue", "Chest Pain",
          "Dizziness", "Nausea", "Breathing Difficulty", "Body Pain"]
     )
@@ -108,7 +130,7 @@ elif page == "Symptom Checker":
                 st.info("🟢 Low risk condition")
                 st.write("Rest and monitor symptoms")
 
-# ================== DOCTOR RECOMMENDER (REAL TRIAGE) ==================
+# ================== DOCTOR RECOMMENDER ==================
 elif page == "Doctor Recommender":
     st.title("Medical Triage System 👨‍⚕️")
 
@@ -145,10 +167,9 @@ elif page == "Doctor Recommender":
                 st.write("Minor condition suspected")
                 st.write("Rest and hydration recommended")
 
-            # UNKNOWN
             else:
                 st.info("⚪ UNCERTAIN CONDITION")
-                st.write("Consult General Physician for diagnosis")
+                st.write("Consult General Physician")
 
 # ================== REPORT EXPLAINER ==================
 elif page == "Report Explainer":
@@ -164,18 +185,18 @@ elif page == "Report Explainer":
             text += p.extract_text() or ""
         return text
 
-    if st.button("Explain"):
+    if st.button("Explain Report"):
         if uploaded:
             data = extract_pdf(uploaded)
             st.subheader("Report Summary")
-            st.info("Most values appear within normal range. Please consult doctor for confirmation.")
+            st.info("Your report looks mostly normal. Please consult doctor for confirmation.")
 
         elif text_input.strip():
             st.subheader("Report Summary")
-            st.info("Text analysis shows no critical issues detected.")
+            st.info("No major issues detected from given text.")
 
         else:
-            st.warning("Provide PDF or text")
+            st.warning("Upload PDF or paste text")
 
 # ================== CHATBOT ==================
 elif page == "AI Chatbot":
@@ -190,7 +211,7 @@ elif page == "AI Chatbot":
         with st.chat_message(msg["role"]):
             st.write(msg["content"])
 
-    user_input = st.chat_input("Ask your question")
+    user_input = st.chat_input("Type your question")
 
     if user_input:
         st.session_state.chat.append({"role": "user", "content": user_input})
@@ -212,4 +233,4 @@ elif page == "Health Tools":
 
 # ================== FOOTER ==================
 st.markdown("---")
-st.caption("⚠️ Educational Medical Triage System | Not a real diagnosis tool")
+st.caption("⚠️ Educational AI Medical Triage System | Not a real diagnosis tool")
