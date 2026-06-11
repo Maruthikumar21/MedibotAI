@@ -1,150 +1,167 @@
 import streamlit as st
 from PyPDF2 import PdfReader
 
+# ================== PAGE CONFIG ==================
 st.set_page_config(
     page_title="MediBot AI",
     page_icon="🩺",
-    layout="wide",
-    initial_sidebar_state="expanded"
+    layout="wide"
 )
 
-# ================== CLEAN PROFESSIONAL DARK THEME ==================
+# ================== CLEAN UI THEME ==================
 st.markdown("""
-    <style>
-    .stApp {
-        background-color: #0A0C10;
-        color: #F0F0F0;
-    }
-    /* Dark Sidebar */
-    .css-1d391kg, .sidebar .sidebar-content, section[data-testid="stSidebar"] {
-        background-color: #12151C !important;
-    }
-    
-    h1, h2, h3, h4 {
-        color: #00FFCC !important;
-    }
-    
-    p, label, .stMarkdown {
-        color: #E0E0E0 !important;
-    }
-    
-    /* Inputs */
-    .stTextInput input, .stSelectbox, .stMultiselect, .stNumberInput input, textarea {
-        background-color: #1F2937 !important;
-        color: #FFFFFF !important;
-        border: 1px solid #4B5563;
-    }
-    
-    /* Buttons */
-    .stButton button {
-        background-color: #00FFAA;
-        color: #0A0C10;
-        font-weight: bold;
-        border-radius: 8px;
-        padding: 10px 20px;
-    }
-    
-    /* Alerts */
-    .stSuccess, .stWarning, .stInfo, .stError {
-        background-color: #1F2937;
-        color: #FFFFFF;
-        border-left: 5px solid #00FFAA;
-    }
-    </style>
+<style>
+.stApp {
+    background-color: #0B1220;
+    color: #E5E7EB;
+}
+
+/* Sidebar */
+section[data-testid="stSidebar"] {
+    background-color: #111827;
+}
+
+/* Headings */
+h1, h2, h3 {
+    color: #38BDF8 !important;
+}
+
+/* Inputs */
+input, textarea {
+    background-color: #1F2937 !important;
+    color: white !important;
+    border-radius: 8px !important;
+}
+
+/* Buttons */
+.stButton button {
+    background-color: #38BDF8;
+    color: black;
+    font-weight: bold;
+    border-radius: 8px;
+}
+
+/* Chat bubbles */
+[data-testid="stChatMessage"] {
+    background-color: #111827;
+    border-radius: 10px;
+    padding: 10px;
+}
+</style>
 """, unsafe_allow_html=True)
 
 # ================== SIDEBAR ==================
 st.sidebar.title("🩺 MediBot AI")
-st.sidebar.markdown("**Professional AI Medical Assistant**")
-st.sidebar.markdown("---")
 page = st.sidebar.radio("Navigate", [
-    "🏠 Home", 
-    "🔍 Symptom Checker", 
-    "👨‍⚕️ Doctor Recommender",
-    "📄 Report Explainer", 
-    "💬 AI Chatbot", 
-    "📊 Health Tools"
+    "Home",
+    "Symptom Checker",
+    "Doctor Recommender",
+    "Report Explainer",
+    "AI Chatbot",
+    "Health Tools"
 ])
 
-# ================== PAGES ==================
-if page == "🏠 Home":
-    st.title("Welcome to MediBot AI 🩺")
-    st.markdown("### Professional AI Medical Assistant")
-    st.image("https://source.unsplash.com/800x400/?doctor,modern,technology", width="stretch")
-    st.success("Clean • Professional • Educational Project")
+# ================== HOME ==================
+if page == "Home":
+    st.title("MediBot AI 🩺")
+    st.write("AI-powered medical assistant for learning purposes only.")
+    st.image("https://source.unsplash.com/1200x400/?hospital,technology")
 
-elif page == "🔍 Symptom Checker":
-    st.title("🔍 AI Symptom Checker")
-    st.warning("**Educational Demo Only** — Not for real medical diagnosis")
-    
-    symptoms = ['Fever', 'Cough', 'Headache', 'Fatigue', 'Sore Throat', 
-                'Body Ache', 'Nausea', 'Shortness of Breath', 'Chest Pain', 
-                'Dizziness', 'Runny Nose']
-    
-    selected = st.multiselect("Select your symptoms", symptoms)
-    
-    if st.button("🔎 Predict Condition", type="primary"):
-        if selected:
-            st.success("**Most Likely:** Viral Infection / Flu")
-            st.info("**Advice:** Rest well, drink water, and consult a real doctor.")
-            st.session_state.last_disease = "Viral Infection"
+# ================== SYMPTOM CHECKER ==================
+elif page == "Symptom Checker":
+    st.title("Symptom Checker 🔍")
+
+    symptoms = st.multiselect(
+        "Select your symptoms",
+        ["Fever", "Cough", "Headache", "Fatigue", "Chest Pain",
+         "Dizziness", "Nausea", "Breathing Issues"]
+    )
+
+    if st.button("Analyze Symptoms"):
+        if len(symptoms) == 0:
+            st.warning("Please select symptoms first")
         else:
-            st.error("Please select at least one symptom")
+            st.success("Analysis Complete")
+            st.info("Possible condition: Please consult a general physician for proper diagnosis.")
 
-elif page == "👨‍⚕️ Doctor Recommender":
-    st.title("👨‍⚕️ Doctor Recommender")
-    disease = st.text_input("Enter condition or symptom", 
-                           value=st.session_state.get("last_disease", ""))
-    
-    if st.button("Get Recommendation"):
-        if disease:
-            st.success("**Recommended Doctor:** General Physician")
-            st.info("Visit a nearby hospital or clinic.")
+# ================== DOCTOR RECOMMENDER ==================
+elif page == "Doctor Recommender":
+    st.title("Doctor Recommender 👨‍⚕️")
+
+    disease = st.text_input("Enter your condition or symptoms")
+
+    if st.button("Find Doctor"):
+        if disease.strip() == "":
+            st.warning("Please enter your condition")
         else:
-            st.warning("Please enter a condition")
+            st.success("Recommended Specialist: General Physician")
+            st.info("Based on your input, visit a nearby hospital for consultation.")
 
-elif page == "📄 Report Explainer":
-    st.title("📄 Medical Report Explainer")
-    uploaded = st.file_uploader("Upload PDF Report", type="pdf")
-    text = st.text_area("Or paste report text", height=180)
-    
-    if st.button("Explain in Simple Language"):
-        if uploaded or text.strip():
+# ================== REPORT EXPLAINER ==================
+elif page == "Report Explainer":
+    st.title("Medical Report Explainer 📄")
+
+    uploaded_file = st.file_uploader("Upload PDF Report", type="pdf")
+    text_input = st.text_area("OR paste report text")
+
+    def extract_pdf(file):
+        pdf = PdfReader(file)
+        text = ""
+        for page in pdf.pages:
+            text += page.extract_text() or ""
+        return text
+
+    if st.button("Explain Report"):
+        if uploaded_file:
+            report_text = extract_pdf(uploaded_file)
             st.subheader("Simplified Explanation")
-            st.success("**Key Points:** Most values are normal.")
-            st.write("Please consult your doctor with the full report.")
-        else:
-            st.warning("Upload PDF or paste text")
+            st.write("Key Findings (AI Simulation):")
+            st.info("Your report seems mostly within normal range. Please consult a doctor for confirmation.")
 
-elif page == "💬 AI Chatbot":
-    st.title("💬 AI Health Chatbot")
-    if "messages" not in st.session_state:
-        st.session_state.messages = [{"role": "assistant", "content": "Hello! How can I help you today?"}]
-    
-    for msg in st.session_state.messages:
+        elif text_input.strip():
+            st.subheader("Simplified Explanation")
+            st.write("Key Findings (AI Simulation):")
+            st.info("The provided text indicates normal or mild conditions. Always consult a doctor.")
+
+        else:
+            st.warning("Upload a PDF or paste report text")
+
+# ================== CHATBOT ==================
+elif page == "AI Chatbot":
+    st.title("AI Health Chatbot 💬")
+
+    if "chat" not in st.session_state:
+        st.session_state.chat = [
+            {"role": "assistant", "content": "Hi! I am MediBot AI. Ask me anything about health."}
+        ]
+
+    for msg in st.session_state.chat:
         with st.chat_message(msg["role"]):
             st.write(msg["content"])
-    
-    if prompt := st.chat_input("Ask your question..."):
-        st.session_state.messages.append({"role": "user", "content": prompt})
-        with st.chat_message("user"):
-            st.write(prompt)
-        
-        reply = "Thank you. Remember, this is an educational project. Please consult a real doctor."
-        st.session_state.messages.append({"role": "assistant", "content": reply})
-        with st.chat_message("assistant"):
-            st.write(reply)
 
-elif page == "📊 Health Tools":
-    st.title("📊 Health Tools")
-    col1, col2 = st.columns(2)
-    with col1:
-        weight = st.number_input("Weight (kg)", 20, 250, 70)
-        height = st.number_input("Height (cm)", 100, 250, 170)
-        if st.button("Calculate BMI"):
-            bmi = weight / ((height/100)**2)
-            st.metric("Your BMI", f"{bmi:.1f}")
+    user_input = st.chat_input("Type your health question...")
 
-# Footer
+    if user_input:
+        st.session_state.chat.append({"role": "user", "content": user_input})
+
+        reply = "This is an educational response. Please consult a real doctor for medical advice."
+
+        st.session_state.chat.append({"role": "assistant", "content": reply})
+
+# ================== HEALTH TOOLS ==================
+elif page == "Health Tools":
+    st.title("Health Tools 📊")
+
+    weight = st.number_input("Weight (kg)", 1, 200)
+    height = st.number_input("Height (cm)", 50, 250)
+
+    if st.button("Calculate BMI"):
+        if height > 0:
+            bmi = weight / ((height / 100) ** 2)
+            st.success(f"Your BMI is: {bmi:.2f}")
+        else:
+            st.error("Invalid height")
+
+# ================== FOOTER ==================
 st.markdown("---")
-st.caption("⚠️ Educational Project Only • Always consult a licensed medical professional")
+st.caption("⚠️ Educational Project Only | MediBot AI")
