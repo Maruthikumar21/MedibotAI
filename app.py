@@ -8,7 +8,7 @@ st.set_page_config(
     layout="wide"
 )
 
-# ================== UI THEME (FIXED VISIBILITY) ==================
+# ================== CLEAN UI THEME ==================
 st.markdown("""
 <style>
 
@@ -29,13 +29,13 @@ h1, h2, h3, h4 {
     font-weight: 700;
 }
 
-/* Global text visibility FIX */
+/* Global text visibility */
 p, span, label, div {
     color: #F1F5F9 !important;
     font-size: 16px;
 }
 
-/* Input fields */
+/* Inputs */
 input, textarea {
     background-color: #1E293B !important;
     color: #FFFFFF !important;
@@ -43,7 +43,7 @@ input, textarea {
     border-radius: 10px !important;
 }
 
-/* Placeholder text */
+/* Placeholder */
 input::placeholder, textarea::placeholder {
     color: #94A3B8 !important;
 }
@@ -65,11 +65,6 @@ input::placeholder, textarea::placeholder {
     border: 1px solid #1F2A44;
 }
 
-/* Chat input */
-.stChatInputContainer {
-    background-color: #0F172A;
-}
-
 /* Alerts */
 .stAlert {
     background-color: #111827 !important;
@@ -77,9 +72,22 @@ input::placeholder, textarea::placeholder {
     border-left: 5px solid #38BDF8;
 }
 
-/* Multiselect fix */
-.stMultiSelect div {
-    color: #0F172A !important;
+/* ================== MULTISELECT FIX (IMPORTANT) ================== */
+div[data-baseweb="select"] * {
+    color: #F8FAFC !important;
+}
+
+div[data-baseweb="select"] {
+    background-color: #1E293B !important;
+}
+
+.stMultiSelect span {
+    color: #F8FAFC !important;
+}
+
+ul {
+    background-color: #1E293B !important;
+    color: #F8FAFC !important;
 }
 
 </style>
@@ -107,7 +115,7 @@ elif page == "Symptom Checker":
     st.title("Symptom Checker 🔍")
 
     symptoms = st.multiselect(
-        "Select your symptoms",
+        "Select symptoms",
         ["Fever", "Cough", "Headache", "Fatigue", "Chest Pain",
          "Dizziness", "Nausea", "Breathing Difficulty", "Body Pain"]
     )
@@ -142,27 +150,23 @@ elif page == "Doctor Recommender":
         else:
             text = symptom_text.lower()
 
-            # EMERGENCY
-            if any(word in text for word in ["chest pain", "heart pain", "faint", "left arm pain"]):
+            if any(x in text for x in ["chest pain", "heart pain", "faint", "left arm"]):
                 st.error("🚨 EMERGENCY RISK")
-                st.write("Possible cardiac-related issue")
+                st.write("Possible cardiac issue")
                 st.write("Go to Emergency Room immediately")
                 st.write("Specialist: Cardiologist / Emergency Medicine")
 
-            # HIGH RISK
-            elif any(word in text for word in ["breathing", "shortness of breath", "severe pain"]):
+            elif any(x in text for x in ["breathing", "shortness of breath", "severe pain"]):
                 st.error("⚠️ HIGH RISK")
                 st.write("Requires urgent medical attention")
                 st.write("Specialist: Pulmonologist / General Physician")
 
-            # MODERATE
-            elif any(word in text for word in ["fever", "cough", "cold", "fatigue"]):
+            elif any(x in text for x in ["fever", "cough", "cold", "fatigue"]):
                 st.warning("🟡 MODERATE CONDITION")
                 st.write("Likely infection or viral illness")
                 st.write("Specialist: General Physician")
 
-            # LOW
-            elif any(word in text for word in ["headache", "mild pain"]):
+            elif any(x in text for x in ["headache", "mild pain"]):
                 st.info("🟢 LOW RISK")
                 st.write("Minor condition suspected")
                 st.write("Rest and hydration recommended")
@@ -189,11 +193,11 @@ elif page == "Report Explainer":
         if uploaded:
             data = extract_pdf(uploaded)
             st.subheader("Report Summary")
-            st.info("Your report looks mostly normal. Please consult doctor for confirmation.")
+            st.info("Report appears mostly normal. Consult doctor for confirmation.")
 
         elif text_input.strip():
             st.subheader("Report Summary")
-            st.info("No major issues detected from given text.")
+            st.info("No major issues detected in text analysis.")
 
         else:
             st.warning("Upload PDF or paste text")
