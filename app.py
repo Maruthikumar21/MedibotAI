@@ -8,7 +8,7 @@ st.set_page_config(
     layout="wide"
 )
 
-# ================== CLEAN UI THEME ==================
+# ================== CLEAN PROFESSIONAL UI ==================
 st.markdown("""
 <style>
 .stApp {
@@ -23,7 +23,12 @@ section[data-testid="stSidebar"] {
 
 /* Headings */
 h1, h2, h3 {
-    color: #38BDF8 !important;
+    color: #60A5FA !important;
+}
+
+/* Text visibility FIX */
+p, span, label, div {
+    color: #E5E7EB !important;
 }
 
 /* Inputs */
@@ -31,21 +36,29 @@ input, textarea {
     background-color: #1F2937 !important;
     color: white !important;
     border-radius: 8px !important;
+    border: 1px solid #374151 !important;
 }
 
 /* Buttons */
 .stButton button {
-    background-color: #38BDF8;
-    color: black;
+    background-color: #3B82F6;
+    color: white;
     font-weight: bold;
     border-radius: 8px;
 }
 
-/* Chat bubbles */
+/* Chat */
 [data-testid="stChatMessage"] {
     background-color: #111827;
     border-radius: 10px;
-    padding: 10px;
+    padding: 12px;
+}
+
+/* Alerts */
+.stAlert {
+    background-color: #1F2937 !important;
+    color: #FFFFFF !important;
+    border-left: 5px solid #3B82F6;
 }
 </style>
 """, unsafe_allow_html=True)
@@ -64,7 +77,7 @@ page = st.sidebar.radio("Navigate", [
 # ================== HOME ==================
 if page == "Home":
     st.title("MediBot AI 🩺")
-    st.write("AI-powered medical assistant for learning purposes only.")
+    st.write("AI-powered medical triage assistant (Educational Purpose Only)")
     st.image("https://source.unsplash.com/1200x400/?hospital,technology")
 
 # ================== SYMPTOM CHECKER ==================
@@ -72,59 +85,97 @@ elif page == "Symptom Checker":
     st.title("Symptom Checker 🔍")
 
     symptoms = st.multiselect(
-        "Select your symptoms",
+        "Select symptoms",
         ["Fever", "Cough", "Headache", "Fatigue", "Chest Pain",
-         "Dizziness", "Nausea", "Breathing Issues"]
+         "Dizziness", "Nausea", "Breathing Difficulty", "Body Pain"]
     )
 
     if st.button("Analyze Symptoms"):
-        if len(symptoms) == 0:
-            st.warning("Please select symptoms first")
+        if not symptoms:
+            st.warning("Please select symptoms")
         else:
             st.success("Analysis Complete")
-            st.info("Possible condition: Please consult a general physician for proper diagnosis.")
 
-# ================== DOCTOR RECOMMENDER ==================
+            if "Chest Pain" in symptoms or "Breathing Difficulty" in symptoms:
+                st.error("🚨 HIGH RISK DETECTED")
+                st.write("Seek immediate medical attention")
+
+            elif "Fever" in symptoms or "Cough" in symptoms:
+                st.warning("🟡 Moderate condition")
+                st.write("Consult General Physician")
+
+            else:
+                st.info("🟢 Low risk condition")
+                st.write("Rest and monitor symptoms")
+
+# ================== DOCTOR RECOMMENDER (REAL TRIAGE) ==================
 elif page == "Doctor Recommender":
-    st.title("Doctor Recommender 👨‍⚕️")
+    st.title("Medical Triage System 👨‍⚕️")
 
-    disease = st.text_input("Enter your condition or symptoms")
+    symptom_text = st.text_input("Describe your symptoms")
 
-    if st.button("Find Doctor"):
-        if disease.strip() == "":
-            st.warning("Please enter your condition")
+    if st.button("Analyze"):
+        if symptom_text.strip() == "":
+            st.warning("Please enter symptoms")
         else:
-            st.success("Recommended Specialist: General Physician")
-            st.info("Based on your input, visit a nearby hospital for consultation.")
+            text = symptom_text.lower()
+
+            # EMERGENCY
+            if any(word in text for word in ["chest pain", "heart pain", "faint", "left arm pain"]):
+                st.error("🚨 EMERGENCY RISK")
+                st.write("Possible cardiac-related issue")
+                st.write("Go to Emergency Room immediately")
+                st.write("Specialist: Cardiologist / Emergency Medicine")
+
+            # HIGH RISK
+            elif any(word in text for word in ["breathing", "shortness of breath", "severe pain"]):
+                st.error("⚠️ HIGH RISK")
+                st.write("Requires urgent medical attention")
+                st.write("Specialist: Pulmonologist / General Physician")
+
+            # MODERATE
+            elif any(word in text for word in ["fever", "cough", "cold", "fatigue"]):
+                st.warning("🟡 MODERATE CONDITION")
+                st.write("Likely infection or viral illness")
+                st.write("Specialist: General Physician")
+
+            # LOW
+            elif any(word in text for word in ["headache", "mild pain"]):
+                st.info("🟢 LOW RISK")
+                st.write("Minor condition suspected")
+                st.write("Rest and hydration recommended")
+
+            # UNKNOWN
+            else:
+                st.info("⚪ UNCERTAIN CONDITION")
+                st.write("Consult General Physician for diagnosis")
 
 # ================== REPORT EXPLAINER ==================
 elif page == "Report Explainer":
     st.title("Medical Report Explainer 📄")
 
-    uploaded_file = st.file_uploader("Upload PDF Report", type="pdf")
+    uploaded = st.file_uploader("Upload PDF report", type="pdf")
     text_input = st.text_area("OR paste report text")
 
     def extract_pdf(file):
         pdf = PdfReader(file)
         text = ""
-        for page in pdf.pages:
-            text += page.extract_text() or ""
+        for p in pdf.pages:
+            text += p.extract_text() or ""
         return text
 
-    if st.button("Explain Report"):
-        if uploaded_file:
-            report_text = extract_pdf(uploaded_file)
-            st.subheader("Simplified Explanation")
-            st.write("Key Findings (AI Simulation):")
-            st.info("Your report seems mostly within normal range. Please consult a doctor for confirmation.")
+    if st.button("Explain"):
+        if uploaded:
+            data = extract_pdf(uploaded)
+            st.subheader("Report Summary")
+            st.info("Most values appear within normal range. Please consult doctor for confirmation.")
 
         elif text_input.strip():
-            st.subheader("Simplified Explanation")
-            st.write("Key Findings (AI Simulation):")
-            st.info("The provided text indicates normal or mild conditions. Always consult a doctor.")
+            st.subheader("Report Summary")
+            st.info("Text analysis shows no critical issues detected.")
 
         else:
-            st.warning("Upload a PDF or paste report text")
+            st.warning("Provide PDF or text")
 
 # ================== CHATBOT ==================
 elif page == "AI Chatbot":
@@ -132,19 +183,19 @@ elif page == "AI Chatbot":
 
     if "chat" not in st.session_state:
         st.session_state.chat = [
-            {"role": "assistant", "content": "Hi! I am MediBot AI. Ask me anything about health."}
+            {"role": "assistant", "content": "Hi! I am MediBot AI. Ask me health-related questions."}
         ]
 
     for msg in st.session_state.chat:
         with st.chat_message(msg["role"]):
             st.write(msg["content"])
 
-    user_input = st.chat_input("Type your health question...")
+    user_input = st.chat_input("Ask your question")
 
     if user_input:
         st.session_state.chat.append({"role": "user", "content": user_input})
 
-        reply = "This is an educational response. Please consult a real doctor for medical advice."
+        reply = "This is an educational response. Please consult a real doctor."
 
         st.session_state.chat.append({"role": "assistant", "content": reply})
 
@@ -156,12 +207,9 @@ elif page == "Health Tools":
     height = st.number_input("Height (cm)", 50, 250)
 
     if st.button("Calculate BMI"):
-        if height > 0:
-            bmi = weight / ((height / 100) ** 2)
-            st.success(f"Your BMI is: {bmi:.2f}")
-        else:
-            st.error("Invalid height")
+        bmi = weight / ((height / 100) ** 2)
+        st.success(f"Your BMI: {bmi:.2f}")
 
 # ================== FOOTER ==================
 st.markdown("---")
-st.caption("⚠️ Educational Project Only | MediBot AI")
+st.caption("⚠️ Educational Medical Triage System | Not a real diagnosis tool")
