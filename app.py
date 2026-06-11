@@ -70,7 +70,7 @@ page = st.sidebar.radio("Navigate", [
 if page == "🏠 Home":
     st.title("Welcome to MediBot AI 🩺")
     st.markdown("### Professional AI Medical Assistant")
-    st.image("https://source.unsplash.com/800x400/?doctor,modern,technology", use_container_width=True)
+    st.image("https://source.unsplash.com/800x400/?doctor,modern,technology", width="stretch")
     st.success("Clean • Professional • Educational Project")
 
 elif page == "🔍 Symptom Checker":
